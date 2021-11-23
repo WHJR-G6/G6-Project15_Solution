@@ -1,4 +1,3 @@
-
 var PLAY = 1;
 var END = 0;
 var gameState = PLAY;
@@ -42,7 +41,10 @@ function setup() {
   ground.addImage("ground",groundImage);
   ground.x = ground.width /2;
   ground.velocityX = -(2);
-
+  
+  invisibleGround = createSprite(200,300,400,10);
+  invisibleGround.visible = false;
+  bricksGroup = new Group();
   gameOver = createSprite(300,100);
   gameOver.addImage(gameOverImg);
   
@@ -55,13 +57,7 @@ function setup() {
   gameOver.visible = false;
   restart.visible = false;
   
-  invisibleGround = createSprite(200,300,400,10);
-  invisibleGround.visible = false;
-  bricksGroup = new Group();
-  
-  fill(0);
-textSize(24);
-textFont('Georgia');
+ 
   score = 0;
 }
 
@@ -69,6 +65,7 @@ function draw() {
   //trex.debug = true;
   background(bg);
   text("Score: "+ score, 480,30);
+
   
   if (gameState===PLAY){
     
@@ -76,11 +73,8 @@ function draw() {
   
     if(keyDown("space") && mario.y >= 250) {
       mario.velocityY = -12;
-      jumpSound.play();
     }
-  if(score>0 && score%10 === 0){
-       checkPointSound.play() 
-    }
+  
     mario.velocityY = mario.velocityY + 0.5
     
     if (ground.x < 0){
@@ -91,36 +85,31 @@ function draw() {
     
       if(bricksGroup.get(i).isTouching(mario)){
       bricksGroup.get(i).remove()
-      score =score+1;
+      
     }
     }
     mario.collide(invisibleGround);
     spawnbricks();
     spawnObstacles();
-  
     if(obstaclesGroup.isTouching(mario)){
-        gameState = END;
-      
-    }
+      gameState = END;
+    
+  }
+   
     mario.collide(bricksGroup);
   }
+  
+  
   else if (gameState === END) {
-   
+    mario.changeAnimation("collided");
     gameOver.visible = true;
     restart.visible = true;
-    
-    //set velcity of each game object to 0
-    ground.velocityX = 0;
-    mario.velocityY = 0;
     obstaclesGroup.setVelocityXEach(0);
     bricksGroup.setVelocityXEach(0);
 
     obstaclesGroup.setLifetimeEach(-1);
     bricksGroup.setLifetimeEach(-1);
-    mario.changeAnimation("collided",mario_collided);
-
   }
-  
   if(mousePressedOver(restart)) {
     reset();
   }
@@ -160,7 +149,6 @@ function spawnObstacles() {
     obstaclesGroup.add(obstacle);
   }
 }
-
 
 function reset(){
   gameState = PLAY;
